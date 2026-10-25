@@ -1,9 +1,14 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getSupabaseConfig } from "./lib/supabase/config";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  const config = getSupabaseConfig();
+  if (!config) {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -12,8 +17,8 @@ export async function middleware(request: NextRequest) {
 
   try {
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      config.url,
+      config.key,
       {
         cookies: {
           get(name: string) {
@@ -45,14 +50,21 @@ export async function middleware(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname;
 
-    const protectedRoutes = ["/account", "/checkout"];
+    const protectedRoutes = ["/account"];
+    const publicAccountRoutes = [
+      "/account/login",
+      "/account/register",
+      "/account/forgot-password",
+      "/account/reset-password",
+    ];
     const isProtected = protectedRoutes.some((p) =>
       pathname === p || pathname.startsWith(`${p}/`),
     );
+    const isPublicAccountRoute = publicAccountRoutes.includes(pathname);
 
     const { data } = await supabase.auth.getUser();
 
-    if (isProtected && !data.user) {
+    if (isProtected && !isPublicAccountRoute && !data.user) {
       const url = request.nextUrl.clone();
       url.pathname = "/account/login";
       url.searchParams.set("redirectTo", pathname);

@@ -6,8 +6,16 @@ type CatalogProduct = Database["public"]["Tables"]["products"]["Row"];
 type CatalogImage = Database["public"]["Tables"]["product_images"]["Row"];
 type CatalogVariant = Database["public"]["Tables"]["product_variants"]["Row"];
 type CatalogCategory = Database["public"]["Tables"]["categories"]["Row"];
+type CatalogProductCategory =
+  Database["public"]["Tables"]["product_categories"]["Row"];
 
-export type { CatalogProduct, CatalogImage, CatalogVariant, CatalogCategory };
+export type {
+  CatalogProduct,
+  CatalogImage,
+  CatalogVariant,
+  CatalogCategory,
+  CatalogProductCategory,
+};
 
 type SupabaseResponse<T> = { data: T[] | null; error: unknown };
 
@@ -40,9 +48,34 @@ export async function getProductsAndCategories(
 
   if (!result) return { products: [], categories: [] };
   const [productsResult, categoriesResult] = result;
+  const products = (productsResult.data ?? []) as CatalogProduct[];
+  const productIds = products.map((product) => product.id);
+
+  const relatedData = productIds.length
+    ? await Promise.all([
+        safe(
+          supabase
+            .from("product_images")
+            .select("*")
+            .in("product_id", productIds)
+            .order("position", { ascending: true }),
+        ),
+        safe(
+          supabase
+            .from("product_categories")
+            .select("*")
+            .in("product_id", productIds),
+        ),
+      ])
+    : [];
+
+  const [imagesResult, productCategoriesResult] = relatedData;
   return {
-    products: (productsResult.data ?? []) as CatalogProduct[],
+    products,
     categories: (categoriesResult.data ?? []) as CatalogCategory[],
+    images: (imagesResult?.data ?? []) as CatalogImage[],
+    productCategories: (productCategoriesResult?.data ??
+      []) as CatalogProductCategory[],
   };
 }
 

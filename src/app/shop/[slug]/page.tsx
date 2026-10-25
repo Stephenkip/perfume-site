@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getProductBySlug } from "@/lib/queries/catalog";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { ProductGallery } from "@/components/product/ProductSections";
 import { ScentProfile } from "@/components/product/ProductSections";
 import { NotesAccordion } from "@/components/product/ProductSections";
@@ -45,8 +42,6 @@ export default async function ProductPage({
   if (!product) {
     return (
       <div className="flex flex-col flex-1">
-        <AnnouncementBar />
-        <Header />
         <main className="flex-1 pt-20 px-6 md:px-12">
           <h1 className="font-display text-[56px] text-ink italic">Not found</h1>
           <p>That fragrance isn’t in the collection.</p>
@@ -88,8 +83,6 @@ export default async function ProductPage({
 
   return (
     <div className="flex flex-col flex-1">
-      <AnnouncementBar />
-      <Header />
       <main className="flex-1 relative overflow-x-hidden bg-cream">
         <section className="px-6 md:px-12 py-10 lg:py-16">
           <nav className="flex gap-4 text-[10px] uppercase tracking-wider font-medium text-ink/50">

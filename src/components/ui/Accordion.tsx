@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AccordionProps {
@@ -19,7 +19,9 @@ interface AccordionItemProps {
 
 const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
   ({ className, children }, ref) => (
-    <div ref={ref} className={cn("space-y-1", className)} />
+    <div ref={ref} className={cn("space-y-1", className)}>
+      {children}
+    </div>
   ),
 );
 Accordion.displayName = "Accordion";
@@ -31,7 +33,7 @@ const AccordionItem = React.forwardRef<
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className={cn("border-b border-ink/10", className)}>
+    <div ref={ref} className={cn("border-b border-ink/10", className)}>
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}

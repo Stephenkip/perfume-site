@@ -1,6 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Header } from "@/components/layout/Header";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import type { OrderItem, OrderRow } from "@/types/checkout";
@@ -62,8 +60,6 @@ export default async function OrdersPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-cream">
-      <AnnouncementBar />
-      <Header />
       <main className="flex-1 pt-20 px-6 md:px-12 min-h-[calc(100vh-220px)]">
         <h1 className="font-display text-[56px] leading-tight text-ink italic mb-10">
           Your orders

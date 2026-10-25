@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useCart, useCartUI } from "@/components/cart/CartContext";
 import { Button } from "@/components/ui/Button";
@@ -202,5 +202,20 @@ export function CartButton() {
         </span>
       )}
     </button>
+  );
+}
+
+export function CartOverlay() {
+  const { open, closeCart } = useCartUI();
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <CartBackdrop onClose={closeCart} />
+          <CartPanel onClose={closeCart} />
+        </>
+      )}
+    </AnimatePresence>
   );
 }

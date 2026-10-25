@@ -28,14 +28,23 @@ export function useCartUI() {
 }
 
 export function useCart() {
-  return useCartStore((state) => ({
-    items: state.items,
-    addItem: state.addItem,
-    removeItem: state.removeItem,
-    setQuantity: state.setQuantity,
-    clear: state.clear,
-    itemCount: state.itemCount(),
-    subtotal: state.subtotal(),
-    hasItem: state.hasItem,
-  }));
+  const items = useCartStore((state) => state.items);
+  const addItem = useCartStore((state) => state.addItem);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const setQuantity = useCartStore((state) => state.setQuantity);
+  const clear = useCartStore((state) => state.clear);
+  const itemCount = useCartStore((state) => state.itemCount());
+  const subtotal = useCartStore((state) => state.subtotal());
+  const hasItem = useCartStore((state) => state.hasItem);
+
+  return {
+    items,
+    addItem,
+    removeItem,
+    setQuantity,
+    clear,
+    itemCount,
+    subtotal,
+    hasItem,
+  };
 }

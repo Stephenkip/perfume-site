@@ -1,6 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Header } from "@/components/layout/Header";
 import Image from "next/image";
 import Link from "next/link";
 import { placeholderImage } from "@/lib/images";
@@ -30,8 +28,6 @@ export default async function JournalPage() {
 
   return (
     <div className="flex flex-col flex-1 bg-cream">
-      <AnnouncementBar />
-      <Header />
       <main className="flex-1 relative overflow-x-hidden bg-cream min-h-[calc(100vh-200px)]">
         <section className="px-6 md:px-12 py-24 lg:py-32">
           <div className="max-w-2xl">
@@ -62,6 +58,7 @@ export default async function JournalPage() {
                     fill
                     sizes="(max-width: 768px) 90vw, (max-width: 1280px) 35vw, 25vw"
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
                 <div className="p-6 flex flex-col flex-1">

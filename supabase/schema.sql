@@ -172,6 +172,7 @@ alter table products enable row level security;
 alter table product_images enable row level security;
 alter table product_variants enable row level security;
 alter table categories enable row level security;
+alter table product_notes enable row level security;
 alter table scent_notes enable row level security;
 alter table reviews enable row level security;
 alter table journal_articles enable row level security;
@@ -193,8 +194,8 @@ create policy "Public active reviews read" on reviews for select using (active =
 create policy "Public active articles read" on journal_articles for select using (active = true);
 
 -- Users manage their own data
-create policy "Users own orders" on orders for all using (auth.uid() = user_id);
-create policy "Users own order items" on order_items for all using (
+create policy "Users read own orders" on orders for select using (auth.uid() = user_id);
+create policy "Users read own order items" on order_items for select using (
   exists (select 1 from orders o where o.id = order_items.order_id and o.user_id = auth.uid())
 );
 create policy "Users own cart" on carts for all using (auth.uid() = user_id);
@@ -204,48 +205,112 @@ create policy "Users own cart items" on cart_items for all using (
 create policy "Users own addresses" on addresses for all using (auth.uid() = user_id);
 create policy "Users own subscriptions" on subscriptions for all using (auth.uid() = user_id);
 
--- Order creation RPC (server-side only, service role)
+grant usage on schema public to anon, authenticated;
+grant select on products, product_images, product_variants, categories,
+  scent_notes, product_notes, reviews, journal_articles
+  to anon, authenticated;
+grant select on orders, order_items to authenticated;
+grant select, insert, update, delete on carts, cart_items, addresses, subscriptions
+  to authenticated;
+
+-- Guest and authenticated checkout can create pending orders using verified
+-- catalog prices. This function does not process payment.
 create or replace function public.create_order(
-  p_items jsonb,
-  p_email text
-) returns jsonb language plpgsql security definer set search_path = public as $$
+  items jsonb,
+  email text
+) returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   v_order_id uuid;
   v_total integer := 0;
   v_item record;
+  v_product_id uuid;
+  v_variant_id uuid;
+  v_quantity integer;
+  v_price integer;
 begin
-  insert into orders (email, status, total_cents)
-  values (p_email, 'pending', 0)
+  if email is null or pg_catalog.length(pg_catalog.btrim(email)) > 320
+     or email !~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$' then
+    raise exception 'A valid email address is required.';
+  end if;
+
+  if items is null
+     or pg_catalog.jsonb_typeof(items) is distinct from 'array'
+     or pg_catalog.jsonb_array_length(items) < 1
+     or pg_catalog.jsonb_array_length(items) > 30 then
+    raise exception 'The order must contain between 1 and 30 items.';
+  end if;
+
+  insert into public.orders (user_id, email, status, total_cents)
+  values (auth.uid(), pg_catalog.btrim(email), 'pending', 0)
   returning id into v_order_id;
 
-  for v_item in select * from jsonb_array_elements(p_items) as t(item)
+  for v_item in select value as item from pg_catalog.jsonb_array_elements(items)
   loop
-    declare
-      v_pid uuid := (v_item.item->>'product_id')::uuid;
-      v_vid uuid := nullif(v_item.item->>'variant_id', '')::uuid;
-      v_qty integer := (v_item.item->>'quantity')::integer;
-      v_price integer;
-    begin
-      select price_cents into v_price
-      from product_variants
-      where id = coalesce(v_vid, (select id from product_variants where product_id = v_pid limit 1))
-      limit 1;
+    if pg_catalog.jsonb_typeof(v_item.item) <> 'object'
+       or coalesce(v_item.item->>'product_id', '') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+       or coalesce(v_item.item->>'quantity', '') !~ '^(1[0-9]|20|[1-9])$'
+       or (v_item.item ? 'variant_id'
+           and v_item.item->>'variant_id' is not null
+           and v_item.item->>'variant_id' <> ''
+           and v_item.item->>'variant_id' !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$') then
+      raise exception 'An order item is invalid.';
+    end if;
 
-      insert into order_items (order_id, product_id, variant_id, quantity, price_cents)
-      values (v_order_id, v_pid, v_vid, v_qty, v_price);
+    v_product_id := (v_item.item->>'product_id')::uuid;
+    v_variant_id := nullif(v_item.item->>'variant_id', '')::uuid;
+    v_quantity := (v_item.item->>'quantity')::integer;
 
-      v_total := v_total + v_price * v_qty;
-    end;
+    if v_quantity < 1 or v_quantity > 20 then
+      raise exception 'Item quantities must be between 1 and 20.';
+    end if;
+
+    select price_cents into v_price
+    from public.products
+    where id = v_product_id and active = true
+    for share;
+
+    if not found then
+      raise exception 'A product in this order is unavailable.';
+    end if;
+
+    if v_variant_id is not null then
+      select coalesce(pv.price_cents, p.price_cents)
+      into v_price
+      from public.product_variants pv
+      join public.products p on p.id = pv.product_id
+      where pv.id = v_variant_id
+        and pv.product_id = v_product_id
+        and pv.active = true
+        and p.active = true
+        and (pv.stock_qty is null or pv.stock_qty >= v_quantity)
+      for share of pv, p;
+
+      if not found then
+        raise exception 'A selected product variant is unavailable.';
+      end if;
+    end if;
+
+    if v_price is null or v_price < 0 then
+      raise exception 'A product in this order has an invalid price.';
+    end if;
+
+    insert into public.order_items (order_id, product_id, variant_id, quantity, price_cents)
+    values (v_order_id, v_product_id, v_variant_id, v_quantity, v_price);
+
+    v_total := v_total + v_price * v_quantity;
   end loop;
 
-  update orders set total_cents = v_total where id = v_order_id;
+  update public.orders set total_cents = v_total where id = v_order_id;
 
-  return jsonb_build_object(
+  return pg_catalog.jsonb_build_object(
     'order_id', v_order_id::text,
     'status', 'pending',
     'total_cents', v_total
   );
 end;
 $$;
+
+revoke all on function public.create_order(jsonb, text) from public;
+grant execute on function public.create_order(jsonb, text) to anon, authenticated;
 
 -- Revoke direct table access for anon, keep only policies above (default: no access)

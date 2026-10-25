@@ -32,8 +32,8 @@ html {
 }
 
 body {
-  background: var(--cream);
-  color: var(--ink);
+  background: var(--color-cream);
+  color: var(--color-ink);
   font-family: var(--font-ui);
   font-feature-settings: "cv01", "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
@@ -43,13 +43,13 @@ h1, h2, h3, h4, h5, h6, .font-display {
   font-family: var(--font-display);
 }
 
-.ink { color: var(--ink); }
-.cream { color: var(--cream); }
-.terracotta { color: var(--terracotta); }
-.amber { color: var(--amber); }
-.bg-cream { background-color: var(--cream); }
-.bg-ink { background-color: var(--ink); }
-.bg-terracotta { background-color: var(--terracotta); }
+.ink { color: var(--color-ink); }
+.cream { color: var(--color-cream); }
+.terracotta { color: var(--color-terracotta); }
+.amber { color: var(--color-amber); }
+.bg-cream { background-color: var(--color-cream); }
+.bg-ink { background-color: var(--color-ink); }
+.bg-terracotta { background-color: var(--color-terracotta); }
 .border-ink\/5 { border-color: rgba(43, 15, 18, 0.05); }
 
 .uppercase-track {
