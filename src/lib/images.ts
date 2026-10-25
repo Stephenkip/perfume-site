@@ -2,7 +2,7 @@ export function placeholderImage({
   width = 800,
   height = 800,
   text = "Placeholder image — swap for real product photography",
-  source = "unsplash",
+  source = "placehold",
 }: {
   width?: number;
   height?: number;
@@ -19,11 +19,11 @@ export function placeholderImage({
       .join(",") || "perfume"
   );
 
-  if (source === "placehold") {
-    const bg = "ebe3d3";
-    const fg = "2b0f12";
-    return `https://placehold.co/${width}x${height}/${bg}/${fg}?text=${encodeURIComponent(text)}`;
+  if (source === "unsplash") {
+    return `https://images.unsplash.com/photo-1619969720340-4a527a395c77?q=80&w=${width}&h=${height}&fit=crop`;
   }
 
-  return `https://source.unsplash.com/random/${width}x${height}/?${keywords}`;
+  const bg = "ebe3d3";
+  const fg = "2b0f12";
+  return `https://placehold.co/${width}x${height}/${bg}/${fg}?text=${encodeURIComponent(text)}`;
 }
