@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  /* Design tokens — perfume storefront */
+  --color-cream: #F4EFE4;
+  --color-cream-deep: #EBE3D3;
+  --color-ink: #2B0F12;
+  --color-terracotta: #B4431F;
+  --color-amber: #E8893A;
+
+  --color-ink-soft: rgba(43, 15, 18, 0.55);
+  --color-ink-soft-2: rgba(43, 15, 18, 0.18);
+  --color-terracotta-soft: rgba(180, 67, 31, 0.15);
+  --color-terracotta-border: rgba(180, 67, 31, 0.45);
+
+  --radius-card: 30px;
+  --radius-pill: 9999px;
+  --radius-img: 24px;
+
+  --font-display: var(--font-fraunces);
+  --font-ui: var(--font-dm-sans);
+
+  --breakpoint-xs: 375px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-feature-settings: "cv01", "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+}
+
+.ink { color: var(--ink); }
+.cream { color: var(--cream); }
+.terracotta { color: var(--terracotta); }
+.amber { color: var(--amber); }
+.bg-cream { background-color: var(--cream); }
+.bg-ink { background-color: var(--ink); }
+.bg-terracotta { background-color: var(--terracotta); }
+.border-ink\/5 { border-color: rgba(43, 15, 18, 0.05); }
+
+.uppercase-track {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.font-display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+}
+
+.reduce-motion *,
+.reduce-motion ::before,
+.reduce-motion ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reveal-wrapper {
+  opacity: 0;
+  transform: translateY(32px);
+}
+.reveal-wrapper.reveal-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }

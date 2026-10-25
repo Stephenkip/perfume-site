@@ -1,0 +1,12 @@
+import { createClient } from "@supabase/supabase-js";
+
+export function createBrowserClient() {
+  if (typeof window === "undefined") {
+    throw new Error("createBrowserClient must only be called in the browser");
+  }
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+}
