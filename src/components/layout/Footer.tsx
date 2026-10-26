@@ -2,15 +2,24 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Mail, X, Globe } from "lucide-react";
-import { BRAND_NAME, TAGLINE, HASHTAG } from "@/lib/site";
+import { TAGLINE, HASHTAG } from "@/lib/site";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
+import { Button } from "@/components/ui/Button";
 
-const footerLinks = {
-  Shop: ["/", "/shop", "/why-us"],
-  Support: ["/faq", "/find-us", "/subscription"],
-  Account: ["/account/login", "/account/orders", "/account/addresses"],
-};
+const storyLinks = [
+  { label: "Our Story", href: "/our-story" },
+  { label: "Why OEA", href: "/why-us" },
+  { label: "Journal", href: "/journal" },
+];
+
+const supportLinks = [
+  { label: "Log in", href: "/account/login" },
+  { label: "Your orders", href: "/account/orders" },
+  { label: "Addresses", href: "/account/addresses" },
+  { label: "Subscription", href: "/account/subscription" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Store locator", href: "/find-us" },
+];
 
 export function Footer() {
   return (
@@ -21,11 +30,17 @@ export function Footer() {
           <div className="md:col-span-4 lg:col-span-3">
             <RevealOnScroll once className="delay-0">
               <div className="flex items-center gap-3 mb-6">
-                <svg width="120" height="27" viewBox="0 0 120 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <text x="60" y="19" textAnchor="middle" fontFamily="Fraunces, serif" fontSize="16" fontStyle="italic" fill="#F4EFE4" letterSpacing="0.02em">
-                    OEA Perfumery
-                  </text>
-                </svg>
+                <Link
+                  href="/"
+                  aria-label="OEA Perfumery home"
+                  className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  <svg width="120" height="27" viewBox="0 0 120 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <text x="60" y="19" textAnchor="middle" fontFamily="Fraunces, serif" fontSize="16" fontStyle="italic" fill="#F4EFE4" letterSpacing="0.02em">
+                      OEA Perfumery
+                    </text>
+                  </svg>
+                </Link>
                 <p className="text-[10px] uppercase tracking-wider opacity-60">{TAGLINE}</p>
               </div>
               <p className="text-[13px] leading-7 opacity-80 mb-8 max-w-xs">
@@ -33,9 +48,12 @@ export function Footer() {
               </p>
               <div className="flex items-center gap-4">
                 <span className="text-[11px] uppercase tracking-wider opacity-70">Language</span>
-                <button className="h-8 min-w-[88px] rounded-full border border-white/30 bg-white/5 px-3 text-[11px] text-white uppercase tracking-wider hover:bg-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-white outline-none">
+                <span
+                  aria-label="Current language: English"
+                  className="inline-flex h-8 min-w-[88px] items-center justify-center rounded-full border border-white/30 bg-white/5 px-3 text-[11px] text-white uppercase tracking-wider"
+                >
                   EN
-                </button>
+                </span>
               </div>
             </RevealOnScroll>
           </div>
@@ -44,10 +62,10 @@ export function Footer() {
             <RevealOnScroll once delay={100} className="delay-100">
               <h3 className="text-[11px] uppercase tracking-wider text-white mb-6 font-medium">Journal &amp; story</h3>
               <ul className="space-y-3">
-                {["Our Story", "Scent notes guide", "How to layer", "Press"].map((t) => (
-                  <li key={t}>
-                    <Link href="#" className="text-[13px] leading-7 opacity-80 hover:text-white transition-colors">
-                      {t}
+                {storyLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-[13px] leading-7 opacity-80 hover:text-white transition-colors">
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -59,10 +77,10 @@ export function Footer() {
             <RevealOnScroll once delay={200} className="delay-200">
               <h3 className="text-[11px] uppercase tracking-wider text-white mb-6 font-medium">Account &amp; support</h3>
               <ul className="space-y-3">
-                {["Log in", "Your orders", "Addresses", "Subscription", "FAQ", "Store locator"].map((t) => (
-                  <li key={t}>
-                    <Link href="#" className="text-[13px] leading-7 opacity-80 hover:text-white transition-colors">
-                      {t}
+                {supportLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-[13px] leading-7 opacity-80 hover:text-white transition-colors">
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -73,24 +91,15 @@ export function Footer() {
           <div className="md:col-span-12 lg:col-span-3 border-t border-white/10 md:border-t-0 md:border-l border-white/10 md:pl-12 pt-8 md:pt-0">
             <RevealOnScroll once delay={300} className="delay-300">
               <h3 className="text-[11px] uppercase tracking-wider text-white mb-6 font-medium">Join the ritual</h3>
-              <form className="flex flex-col md:flex-row gap-3 max-w-md" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="flex-1 min-w-[200px] rounded-full border border-white/30 bg-white/5 px-4 py-3 text-[13px] text-white placeholder-white/40 focus:ring-2 focus:ring-white outline-none"
-                />
-                <ButtonCta>Subscribe</ButtonCta>
-              </form>
+              <p className="max-w-xs text-[13px] leading-6 text-cream/75">
+                Discover a more personal way to wear fine fragrance.
+              </p>
+              <Button variant="cream" asChild className="mt-5">
+                <Link href="/subscription">Explore subscriptions</Link>
+              </Button>
               <p className="mt-4 text-[11px] uppercase tracking-wider opacity-60">
                 {" "}{HASHTAG}
               </p>
-              <div className="mt-6 flex gap-4">
-                {[["Instagram", "/#"], ["Press", "/#"], ["Contact", "/#"]].map(([name, href]) => (
-                  <a key={name} href={href} className="text-[11px] uppercase tracking-wider opacity-70 hover:text-white transition-colors">
-                    {name}
-                  </a>
-                ))}
-              </div>
             </RevealOnScroll>
           </div>
         </div>
@@ -100,18 +109,6 @@ export function Footer() {
             <p className="text-[10px] uppercase tracking-wider opacity-50">
               OEA Perfumery &middot; Made in France &middot; Cruelty-free
             </p>
-            <div className="flex gap-3">
-              {[Mail, X, Globe].map((Icon) => (
-                <a
-                  key={Icon === Mail ? "mail" : Icon === X ? "x" : "globe"}
-                  href="#"
-                  className="w-6 h-6 text-white/70 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white rounded-full outline-none p-1"
-                  aria-hidden
-                >
-                  <Icon />
-                </a>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -143,13 +140,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function ButtonCta({ children }: { children: React.ReactNode }) {
-  return (
-    <button className="rounded-full bg-white text-ink px-5 py-2.5 text-[11px] font-medium uppercase tracking-wider hover:bg-terracotta hover:text-cream transition-colors focus-visible:ring-2 focus-visible:ring-white outline-none">
-      {children}
-    </button>
   );
 }

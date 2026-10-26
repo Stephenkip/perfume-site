@@ -1,6 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Header } from "@/components/layout/Header";
 import Image from "next/image";
 import Link from "next/link";
 import { placeholderImage } from "@/lib/images";
@@ -51,8 +49,6 @@ export default async function JournalArticlePage({
   if (!article) {
     return (
       <div className="flex flex-col flex-1">
-        <AnnouncementBar />
-        <Header />
         <main className="flex-1 pt-20 px-6 md:px-12 min-h-[calc(100vh-200px)]">
         <h1 className="font-display text-[56px] text-ink italic">Not found</h1>
       </main>
@@ -67,8 +63,6 @@ export default async function JournalArticlePage({
 
   return (
     <div className="flex flex-col flex-1 bg-cream">
-      <AnnouncementBar />
-      <Header />
       <main className="flex-1 relative overflow-x-hidden bg-cream min-h-[calc(100vh-200px)]">
         <section className="px-6 md:px-12 py-10 lg:py-16">
           <div className="relative aspect-[3/2] rounded-[32px] overflow-hidden border border-ink/10 bg-cream-deep mb-10">
@@ -79,6 +73,7 @@ export default async function JournalArticlePage({
               sizes="100vw"
               className="object-cover"
               priority
+              unoptimized
             />
           </div>
           <nav className="mt-6 flex gap-4 text-[10px] uppercase tracking-wider font-medium text-ink/50">

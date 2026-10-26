@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, User } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { useCartUI } from "@/components/cart/CartContext";
 
@@ -39,19 +39,25 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-40 pointer-events-none transition-all duration-500 ease-out ${
+      className={`fixed left-4 right-4 sm:left-8 sm:right-8 lg:left-10 lg:right-10 z-40 pointer-events-none transition-all duration-500 ease-out ${
         scrolled
-          ? "bg-cream/80 backdrop-blur-md border-b border-ink/5"
-          : "bg-transparent"
+          ? "top-3"
+          : "top-12"
       }`}
     >
-      <div className="pointer-events-auto flex items-center justify-between px-6 py-5">
-        <nav className="flex items-center gap-8 shrink-0">
+      <div
+        className={`pointer-events-auto relative flex items-center justify-between rounded-full border px-5 py-3 transition-[background-color,border-color,box-shadow] duration-300 sm:px-6 sm:py-3.5 ${
+          scrolled
+            ? "border-ink/10 bg-cream shadow-[0_8px_30px_rgba(43,15,18,0.12)]"
+            : "border-transparent bg-transparent shadow-none"
+        }`}
+      >
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-8 shrink-0">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-[10px] font-medium uppercase tracking-wider text-ink/70 hover:text-terracotta transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full px-2 py-1 outline-none"
+              className="text-[11px] font-medium uppercase tracking-wider text-ink/70 hover:text-terracotta transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full px-2 py-1 outline-none"
             >
               {link.label}
             </Link>
@@ -60,7 +66,7 @@ export function Header() {
 
         <Link
           href="/"
-          className="mx-auto shrink-0"
+          className="absolute left-1/2 -translate-x-1/2 shrink-0"
           aria-label="OEA Perfumery home"
         >
           <svg
@@ -77,7 +83,7 @@ export function Header() {
               fontFamily="Fraunces, serif"
               fontSize="20"
               fontStyle="italic"
-              fill="var(--ink)"
+              fill="var(--color-ink)"
               letterSpacing="0.02em"
             >
               OEA Perfumery
@@ -88,7 +94,7 @@ export function Header() {
               textAnchor="middle"
               fontFamily="DM Sans, sans-serif"
               fontSize="7"
-              fill="var(--ink)"
+              fill="var(--color-ink)"
               letterSpacing="0.4em"
             >
               alcohol-free fine fragrance
@@ -96,19 +102,20 @@ export function Header() {
           </svg>
         </Link>
 
-        <nav className="flex items-center gap-4 shrink-0">
-          <Link href="/find-us" className="text-[10px] font-medium uppercase tracking-wider text-ink/70 hover:text-terracotta transition-colors">
+        <nav className="ml-auto flex items-center gap-3 lg:gap-4 shrink-0">
+          <Link href="/find-us" className="hidden lg:block text-[11px] font-medium uppercase tracking-wider text-ink/70 hover:text-terracotta transition-colors">
             Find Us
           </Link>
-          <Link href="/subscription" className="text-[10px] font-medium uppercase tracking-wider text-ink/70 hover:text-terracotta transition-colors">
+          <Link href="/subscription" className="hidden lg:block text-[11px] font-medium uppercase tracking-wider text-ink/70 hover:text-terracotta transition-colors">
             Subscribe
           </Link>
-          <button
-            className="p-1.5 text-ink/60 hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full outline-none shrink-0"
+          <Link
+            href="/account/login"
+            className="hidden lg:block p-1.5 text-ink/60 hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full outline-none shrink-0"
             aria-label="Account"
           >
             <User className="h-4 w-4" />
-          </button>
+          </Link>
           <button
             onClick={openCart}
             className="relative p-1.5 text-ink/60 hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full outline-none shrink-0"
@@ -126,7 +133,7 @@ export function Header() {
           </button>
           <button
             onClick={toggleMenu}
-            className="md:hidden p-1.5 text-ink/60 hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full outline-none shrink-0"
+            className="lg:hidden p-1.5 text-ink/60 hover:text-ink transition-colors focus-visible:ring-2 focus-visible:ring-terracotta rounded-full outline-none shrink-0"
             aria-expanded={open}
             aria-label="Menu"
           >
@@ -137,7 +144,9 @@ export function Header() {
 
       {open && (
         <div
-          className="fixed inset-0 z-45 bg-cream flex flex-col md:hidden"
+          className={`pointer-events-auto fixed inset-x-0 bottom-0 z-45 bg-cream flex flex-col lg:hidden ${
+            scrolled ? "top-0" : "top-12"
+          }`}
           role="dialog"
           aria-modal="true"
         >
@@ -181,7 +190,11 @@ export function Header() {
                 Account
               </a>
               <button
-                onClick={toggleMenu}
+                onClick={() => {
+                  setOpen(false);
+                  document.body.style.overflow = "auto";
+                  openCart();
+                }}
                 className="flex items-center gap-2 text-[14px] uppercase tracking-wider font-medium text-ink/70 hover:text-terracotta transition-colors"
               >
                 <ShoppingCart className="h-4 w-4" /> Cart <span className="ml-auto">{count}</span>

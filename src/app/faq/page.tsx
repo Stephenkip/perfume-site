@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { Accordion, AccordionItem } from "@/components/ui/Accordion";
-import { placeholderImage } from "@/lib/images";
-import Image from "next/image";
 
 type FaqGroup = {
   title: string;

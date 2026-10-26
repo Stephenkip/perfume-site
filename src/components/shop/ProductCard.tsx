@@ -61,6 +61,7 @@ export function ProductCard({ product, variantId, isHome }: ProductCardProps) {
             sizes="(max-width: 768px) 45vw, (max-width: 1280px) 30vw, 22vw"
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             priority={isHome}
+            unoptimized
           />
           {product.bestseller && (
             <Pill variant="terracotta" className="absolute top-4 left-4 text-[10px]">

@@ -14,6 +14,7 @@ interface ProductGridProps {
     price_cents?: number | null;
     bestseller?: boolean | null;
     preorder?: boolean | null;
+    categoryIds: string[];
     image?: string;
     imageAlt?: string;
   }>;
@@ -28,7 +29,7 @@ export function ProductGrid({
   const filtered =
     activeFilter === "all"
       ? products
-      : products.filter((p) => p.concentration === activeFilter);
+      : products.filter((p) => p.categoryIds.includes(activeFilter));
 
   return (
     <div className="space-y-10">

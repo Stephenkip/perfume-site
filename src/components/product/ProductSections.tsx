@@ -29,6 +29,7 @@ export function ProductGallery({ mainImage, thumbnails, alt, priority }: Gallery
           sizes="(max-width: 768px) 90vw, 45vw"
           className="object-cover scale-100 transition-transform duration-700 ease-out"
           priority={priority}
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
@@ -48,6 +49,7 @@ export function ProductGallery({ mainImage, thumbnails, alt, priority }: Gallery
               alt={thumb.alt}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
+              unoptimized
             />
           </button>
         ))}

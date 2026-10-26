@@ -2,8 +2,6 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getProductsAndCategories, type CatalogCategory } from "@/lib/queries/catalog";
 import type { Product } from "@/types/supabase";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Header } from "@/components/layout/Header";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { placeholderImage } from "@/lib/images";
 import { Metadata } from "next";
@@ -16,13 +14,18 @@ export const metadata: Metadata = {
 export default async function ShopPage() {
   const supabase = await createClient();
 
-  const { products = [], categories = [] } = await getProductsAndCategories(
+  const {
+    products = [],
+    categories = [],
+    images = [],
+    productCategories = [],
+  } = await getProductsAndCategories(
     supabase,
   );
 
   const filters = [
     { value: "all", label: "All" },
-    ...categories.map((c: CatalogCategory) => ({ value: c.slug, label: c.name })),
+    ...categories.map((c: CatalogCategory) => ({ value: c.id, label: c.name })),
   ];
 
   const mapped: Array<{
@@ -34,6 +37,7 @@ export default async function ShopPage() {
     price_cents?: number | null;
     bestseller?: boolean | null;
     preorder?: boolean | null;
+    categoryIds: string[];
     image?: string;
     imageAlt: string;
   }> = products.map((p: Product) => ({
@@ -45,14 +49,22 @@ export default async function ShopPage() {
     price_cents: p.price_cents,
     bestseller: p.bestseller,
     preorder: p.preorder,
-    image: undefined,
-    imageAlt: `Placeholder for ${p.name}`,
+    categoryIds: productCategories
+      .filter((relation) => relation.product_id === p.id)
+      .map((relation) => relation.category_id),
+    image:
+      images.find((image) => image.product_id === p.id && image.is_primary)
+        ?.url ??
+      images.find((image) => image.product_id === p.id)?.url,
+    imageAlt:
+      images.find((image) => image.product_id === p.id && image.is_primary)
+        ?.alt_text ??
+      images.find((image) => image.product_id === p.id)?.alt_text ??
+      `Illustration for ${p.name}`,
   }));
 
   return (
     <div className="flex flex-col flex-1">
-      <AnnouncementBar />
-      <Header />
       <main className="flex-1 relative overflow-x-hidden bg-cream min-h-[calc(100vh-200px)]">
         <section className="relative px-6 md:px-12 py-24 lg:py-32">
           <div className="relative aspect-[4/3] rounded-[32px] overflow-hidden border border-ink/10 bg-cream-deep mb-12 shadow-lg shadow-ink/10">

@@ -6,6 +6,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartUIProvider } from "@/components/cart/CartContext";
+import { CartOverlay } from "@/components/cart/CartDrawer";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -42,8 +43,9 @@ export default function RootLayout({
           <CartUIProvider>
             <AnnouncementBar />
             <Header />
-            <main className="flex-1 relative overflow-x-hidden">{children}</main>
+            {children}
             <Footer />
+            <CartOverlay />
           </CartUIProvider>
         </SmoothScroll>
       </body>
