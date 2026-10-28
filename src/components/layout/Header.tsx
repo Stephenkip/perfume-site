@@ -7,7 +7,7 @@ import { useCartStore } from "@/lib/store/cart";
 import { useCartUI } from "@/components/cart/CartContext";
 
 const navLinks = [
-  { href: "/", label: "Shop" },
+  { href: "/shop", label: "Shop" },
   { href: "/our-story", label: "Our Story" },
   { href: "/why-us", label: "Why OEA" },
   { href: "/journal", label: "Journal" },

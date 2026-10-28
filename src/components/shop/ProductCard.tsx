@@ -23,12 +23,19 @@ interface ProductCardProps {
     preorder?: boolean | null;
     image?: string;
     imageAlt?: string;
+    isDemo?: boolean;
   };
   variantId?: string;
   isHome?: boolean;
+  isDemo?: boolean;
 }
 
-export function ProductCard({ product, variantId, isHome }: ProductCardProps) {
+export function ProductCard({
+  product,
+  variantId,
+  isHome,
+  isDemo = product.isDemo,
+}: ProductCardProps) {
   const [hovered, setHovered] = React.useState(false);
   const addItem = useCartStore((state) => state.addItem);
   const price = product.price_cents ?? 0;
@@ -54,16 +61,27 @@ export function ProductCard({ product, variantId, isHome }: ProductCardProps) {
     >
       <CardWrapper>
         <div className="relative overflow-hidden rounded-[28px] bg-cream-deep aspect-[1/1]">
-          <Image
-            src={image}
-            alt={product.imageAlt || `Placeholder for ${product.name}`}
-            fill
-            sizes="(max-width: 768px) 45vw, (max-width: 1280px) 30vw, 22vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            priority={isHome}
-            unoptimized
-          />
-          {product.bestseller && (
+          <Link
+            href={`/shop/${product.slug}`}
+            aria-label={`View ${product.name}`}
+            className="absolute inset-0"
+          >
+            <Image
+              src={image}
+              alt={product.imageAlt || `Placeholder for ${product.name}`}
+              fill
+              sizes="(max-width: 768px) 45vw, (max-width: 1280px) 30vw, 22vw"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              priority={isHome}
+              unoptimized
+            />
+          </Link>
+          {isDemo && (
+            <Pill variant="terracotta" className="absolute top-4 right-4 z-10 text-[10px]">
+              Demo
+            </Pill>
+          )}
+          {product.bestseller && !isDemo && (
             <Pill variant="terracotta" className="absolute top-4 left-4 text-[10px]">
               Bestseller
             </Pill>
@@ -75,7 +93,7 @@ export function ProductCard({ product, variantId, isHome }: ProductCardProps) {
           )}
         </div>
 
-        <div className="mt-5 flex flex-col gap-1">
+        <div className="flex flex-col gap-1 px-5 pb-5 pt-4">
           <Link
             href={`/shop/${product.slug}`}
             className="font-display text-[17px] leading-tight text-ink hover:text-terracotta transition-colors"
@@ -100,16 +118,24 @@ export function ProductCard({ product, variantId, isHome }: ProductCardProps) {
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className="absolute inset-0 z-20 flex items-end bg-cream/95 backdrop-blur rounded-[28px] p-5"
             >
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleAdd();
-                }}
-                variant="primary"
-                className="w-full"
-              >
-                Add to cart                 <Plus className="h-3 w-3 ml-1" />
-              </Button>
+              {isDemo ? (
+                <Button asChild variant="primary" className="w-full">
+                  <Link href={`/shop/${product.slug}`}>
+                    View demo product
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAdd();
+                  }}
+                  variant="primary"
+                  className="w-full"
+                >
+                  Add to cart <Plus className="h-3 w-3 ml-1" />
+                </Button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

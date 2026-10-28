@@ -7,9 +7,10 @@ import { NotesAccordion } from "@/components/product/ProductSections";
 import { ProductReviews } from "@/components/product/ProductSections";
 import { RelatedCarousel } from "@/components/product/ProductSections";
 import { StickyMobileBar } from "@/components/product/ProductSections";
-import { Button } from "@/components/ui/Button";
+import { ProductPurchaseActions } from "@/components/product/ProductPurchaseActions";
 import { formatPrice } from "@/lib/utils";
 import { placeholderImage } from "@/lib/images";
+import { DEMO_PRODUCT } from "@/lib/demo-product";
 import { Metadata } from "next";
 
 export async function generateMetadata({
@@ -17,7 +18,8 @@ export async function generateMetadata({
 }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
-  const { product } = await getProductBySlug(supabase, slug);
+  const { product: catalogProduct } = await getProductBySlug(supabase, slug);
+  const product = catalogProduct ?? (slug === DEMO_PRODUCT.slug ? DEMO_PRODUCT : null);
   if (!product) {
     return { title: "Product not found — OEA Perfumery" };
   }
@@ -37,7 +39,14 @@ export default async function ProductPage({
 }) {
   const { slug } = await params;
   const supabase = await createClient();
-  const { product, images, variants } = await getProductBySlug(supabase, slug);
+  const {
+    product: catalogProduct,
+    images,
+    variants,
+  } = await getProductBySlug(supabase, slug);
+  const isDemoProduct = !catalogProduct && slug === DEMO_PRODUCT.slug;
+  const product =
+    catalogProduct ?? (isDemoProduct ? DEMO_PRODUCT : null);
 
   if (!product) {
     return (
@@ -84,7 +93,7 @@ export default async function ProductPage({
   return (
     <div className="flex flex-col flex-1">
       <main className="flex-1 relative overflow-x-hidden bg-cream">
-        <section className="px-6 md:px-12 py-10 lg:py-16">
+        <section className="px-6 pt-32 pb-8 md:px-12 lg:pt-28">
           <nav className="flex gap-4 text-[10px] uppercase tracking-wider font-medium text-ink/50">
             <Link href="/" className="hover:text-terracotta transition-colors">
               Home
@@ -117,6 +126,11 @@ export default async function ProductPage({
                 <h1 className="font-display text-[40px] leading-tight text-ink tracking-tight italic mb-4">
                   {product.name}
                 </h1>
+                {isDemoProduct && (
+                  <p className="mb-4 inline-flex rounded-full border border-terracotta/30 bg-terracotta/5 px-4 py-2 text-[10px] font-medium uppercase tracking-wider text-terracotta">
+                    Demo product · preview only
+                  </p>
+                )}
                 <p className="text-[14px] leading-6 text-ink/60 mb-6">
                   {product.description ?? "Placeholder description — an alcohol-free composition developed for closeness without excess."}
                 </p>
@@ -140,8 +154,9 @@ export default async function ProductPage({
                     <p className="text-[11px] uppercase tracking-wider text-ink/50 font-medium">
                       Size
                     </p>
-                    <div className="flex gap-3">
-                      {variants.map((v: { id: string; size_label: string | null; size_ml: number | null }) => (
+                    <div className="flex flex-wrap gap-3">
+                      {variants.length > 0
+                        ? variants.map((v: { id: string; size_label: string | null; size_ml: number | null }) => (
                         <button
                           key={v.id}
                           className={`rounded-full border px-5 py-1.5 text-[11px] font-medium uppercase tracking-wider transition-all ${
@@ -152,29 +167,29 @@ export default async function ProductPage({
                         >
                           {v.size_label ?? `${v.size_ml ?? 0} ml`}
                         </button>
-                      ))}
+                        ))
+                        : product.size_ml && (
+                            <span className="rounded-full border border-ink bg-ink px-5 py-1.5 text-[11px] font-medium uppercase tracking-wider text-cream">
+                              {product.size_ml} ml
+                            </span>
+                          )}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-4 border-t border-ink/10 pt-6">
-                    <div className="flex items-center gap-3">
-                      <button className="w-10 h-10 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:bg-ink hover:text-cream transition-colors focus-visible:ring-2 focus-visible:ring-terracotta outline-none" aria-label="Decrease quantity">–</button>
-                      <span className="w-8 text-center text-[13px] font-medium text-ink">1</span>
-                      <button className="w-10 h-10 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:bg-ink hover:text-cream transition-colors focus-visible:ring-2 focus-visible:ring-terracotta outline-none" aria-label="Increase quantity">+</button>
-                    </div>
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => {}}
-                        variant="primary"
-                        className="flex-1"
-                      >
-                        Add to cart
-                      </Button>
-                      <Button variant="outline" className="flex-1">
-                        Buy now
-                      </Button>
-                    </div>
-                  </div>
+                  <ProductPurchaseActions
+                    product={{
+                      id: product.id,
+                      slug: product.slug,
+                      name: product.name,
+                      price:
+                        defaultVariant?.price_cents ??
+                        product.price_cents ??
+                        0,
+                      image: mainImage,
+                      variantId: defaultVariant?.id,
+                    }}
+                    isDemo={isDemoProduct}
+                  />
 
                   <div className="mt-6 flex items-center gap-2 text-[11px] uppercase tracking-wider text-ink/50 font-medium">
                     <span className="flex items-center gap-1">⟳</span>
@@ -217,7 +232,11 @@ export default async function ProductPage({
           </div>
         </section>
       </main>
-          <StickyMobileBar product={{ ...product, variantId: defaultVariant?.id }} />
+      {!isDemoProduct && (
+        <StickyMobileBar
+          product={{ ...product, variantId: defaultVariant?.id }}
+        />
+      )}
     </div>
   );
 }
