@@ -5,6 +5,7 @@ import type { Product } from "@/types/supabase";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { placeholderImage } from "@/lib/images";
 import { Metadata } from "next";
+import { DEMO_PRODUCT } from "@/lib/demo-product";
 
 export const metadata: Metadata = {
   title: "Collection — OEA Perfumery",
@@ -28,6 +29,9 @@ export default async function ShopPage() {
     ...categories.map((c: CatalogCategory) => ({ value: c.id, label: c.name })),
   ];
 
+  const isDemoCatalog = products.length === 0;
+  const catalogProducts = isDemoCatalog ? [DEMO_PRODUCT] : products;
+
   const mapped: Array<{
     id: string;
     slug: string;
@@ -40,7 +44,8 @@ export default async function ShopPage() {
     categoryIds: string[];
     image?: string;
     imageAlt: string;
-  }> = products.map((p: Product) => ({
+    isDemo?: boolean;
+  }> = catalogProducts.map((p: Product) => ({
     id: p.id,
     slug: p.slug,
     name: p.name,
@@ -61,6 +66,7 @@ export default async function ShopPage() {
         ?.alt_text ??
       images.find((image) => image.product_id === p.id)?.alt_text ??
       `Illustration for ${p.name}`,
+    isDemo: isDemoCatalog,
   }));
 
   return (
@@ -89,6 +95,11 @@ export default async function ShopPage() {
               Alcohol-free compositions made to be worn close. Browse the full
               edit below, or filter by concentration.
             </p>
+            {isDemoCatalog && (
+              <p className="mt-4 text-[11px] font-medium uppercase tracking-wider text-terracotta">
+                Demo product shown while the catalog is empty
+              </p>
+            )}
           </div>
         </section>
 

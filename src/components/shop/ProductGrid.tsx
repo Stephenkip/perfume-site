@@ -17,6 +17,7 @@ interface ProductGridProps {
     categoryIds: string[];
     image?: string;
     imageAlt?: string;
+    isDemo?: boolean;
   }>;
   filters: Array<{ value: string; label: string }>;
 }
@@ -61,6 +62,7 @@ export function ProductGrid({
             key={product.id}
             product={product}
             isHome={false}
+            isDemo={product.isDemo}
           />
         ))}
       </div>
